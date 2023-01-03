@@ -55,6 +55,27 @@ export class TrackManager extends Component {
     catch (e) {
     }
   };
+  changeVolume = (t: AudioTrack, val: number) => {
+    this.setState((prevState: any) => ({
+      tracklist: prevState.tracklist.map(
+        (el: AudioTrack) => el === t ? { ...el, volume: val } : el
+      )
+    }))
+  };
+  changeDelay = (t: AudioTrack, val: number) => {
+    this.setState((prevState: any) => ({
+      tracklist: prevState.tracklist.map(
+        (el: AudioTrack) => el === t ? { ...el, delay: val } : el
+      )
+    }))
+  };
+  changePlaying = (t: AudioTrack, val: boolean) => {
+    this.setState((prevState: any) => ({
+      tracklist: prevState.tracklist.map(
+        (el: AudioTrack) => el === t ? { ...el, playing: val } : el
+      )
+    }))
+  };
   render() {
     return (
       <div>
