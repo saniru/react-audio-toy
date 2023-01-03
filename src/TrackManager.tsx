@@ -45,12 +45,36 @@ export class TrackManager extends Component {
       tracklist: [...this.state.tracklist, ...ff]
     });
   };
-  getValue = (val: string) => {
+  createPlayerDummy(url: string) {
+    return new Promise((resolve, reject) => {
+      const div = document.createElement("div");
+      document.body.appendChild(div);
+      div.id = "player-" + url + Date.now();
+      div.hidden = true;
+      const options = {
+        controls: 0,
+        modestbranding: true,
+        showinfo: 0,
+      };
+      const events = { "onReady": onPlayerReady };
+      new YT.Player(div.id, { videoId: url, playerVars: options, events });
+      document.getElementById(div.id)!.hidden = true;
+      function onPlayerReady(event: any) {
+        resolve(event.target);
+      }
+    }
+    );
+  }
+  handleYoutube = async (url: URL) => {
+    const player = await this.createPlayerDummy(url.searchParams.get("v") as string);
+    return new YouTubeTrack(player);
+  };
+  getValue = async (val: string) => {
     try {
       const url = new URL(val);
       const msg = url.host != "www.youtube.com" ? "INVALID" : "VALID";
-      console.log(msg);
-      this.setState({ url: val, tracklist: [...this.state.tracklist, url] });
+      const yt = await this.handleYoutube(url);
+      this.setState({ url: val, tracklist: [...this.state.tracklist, yt] });
     }
     catch (e) {
     }
