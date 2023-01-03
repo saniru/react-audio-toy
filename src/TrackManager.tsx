@@ -1,8 +1,10 @@
 import { Component } from 'react';
 import FileInput from './FileInput';
 import URLInput from './URLInput';
+import { Track } from './Track';
+import { FileTrack, YouTubeTrack, AudioTrack } from './AudioTrack';
 interface TrackManagerState {
-  tracklist: Array<URL | File>;
+  tracklist: Array<AudioTrack>;
   url: String;
   file: String;
 };
@@ -20,8 +22,28 @@ export class TrackManager extends Component {
       file: ""
     };
   }
-  getFile = (f: FileList) => {
-    this.setState({ file: f[0], tracklist: [...this.state.tracklist, ...f] });
+  handleFile = async (f: File) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const atag = new Audio();
+        atag.src = reader.result as string;
+        atag.addEventListener("loadeddata", () => {
+          resolve(new FileTrack(atag, f.name));
+        });
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(f);
+    });
+  };
+  getFile = async (f: FileList) => {
+    const ff = await Promise.all([...f].map(async f => {
+      return await this.handleFile(f);
+    }));
+    this.setState({
+      file: f[0],
+      tracklist: [...this.state.tracklist, ...ff]
+    });
   };
   getValue = (val: string) => {
     try {
