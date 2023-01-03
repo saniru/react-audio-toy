@@ -103,7 +103,11 @@ export class TrackManager extends Component {
   render() {
     return (
       <div>
-        <ul>{this.state.tracklist.map(e => <li>{e.href ?? e.name}</li>)}</ul>
+        <div>
+          <ul>
+            {this.state.tracklist.map(e => <Track key={`${e.name}_${e.CreateDate}`} track={e} changeVolume={this.changeVolume} changeDelay={this.changeDelay} changePlaying={this.changePlaying} />)}
+          </ul>
+        </div>
         <URLInput getValue={this.getValue} />
         <FileInput getFile={this.getFile} />
       </div>
