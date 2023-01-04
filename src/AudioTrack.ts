@@ -14,6 +14,7 @@ abstract class AudioTrack{
   abstract duration:number;
   abstract play() : void;
   abstract pause() : void;
+  abstract id:string;
 }
 class FileTrack extends AudioTrack {
   AudioTag:HTMLAudioElement;
@@ -21,6 +22,7 @@ class FileTrack extends AudioTrack {
   duration:number;
   name:string;
   TrackType:string;
+  id:string;
   AudioNode: MediaElementAudioSourceNode;
   gainNode: GainNode;
   constructor(AudioTag:HTMLAudioElement,name:string) {
@@ -37,11 +39,17 @@ class FileTrack extends AudioTrack {
     this.gainNode = audioBase.createGain();
     this.AudioNode.connect(this.gainNode).connect(audioBase.destination);
     this.gainNode.gain.setValueAtTime(0.5,audioBase.currentTime);
+    this.id = this.name + "_" + this.CreateDate;
   }
   getVolume = () => this.gainNode.gain;
   setVolume = (val:number) =>{
     if(!audioBase){return;}
-    this.gainNode.gain.setValueAtTime(val/100,audioBase.currentTime);
+    try{
+      this.gainNode.gain.setValueAtTime(val/100,audioBase.currentTime);
+    }
+    catch(e){
+      console.warn(`val=${val}`);
+    }
   }
   play =()=>{
     this.AudioNode.mediaElement.play();
@@ -57,6 +65,7 @@ class YouTubeTrack extends AudioTrack {
   delay:number;
   duration:number;
   name:string;
+  id:string;
   TrackType:string;
   constructor(player : any) {
     super();
@@ -67,6 +76,7 @@ class YouTubeTrack extends AudioTrack {
     this.duration = this.playerNode.getDuration();
     this.volume = 100;
     this.playerNode.setVolume(this.volume);
+    this.id = this.name + "_" + this.CreateDate;
   }
   getVolume = () => this.playerNode.getVolume();
   setVolume = (val:number) =>{

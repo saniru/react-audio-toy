@@ -1,139 +1,86 @@
-import { Component } from 'react';
-import FileInput from './FileInput';
-import URLInput from './URLInput';
-import { Track } from './Track';
-import { FileTrack, YouTubeTrack, AudioTrack } from './AudioTrack';
-interface TrackManagerState {
-  tracklist: Array<AudioTrack>;
-  url: String;
-  file: String;
-};
-interface TrackManagerProps {
+import { useReducer } from 'react';
+import { AudioTrack } from './AudioTrack';
+import  TrackList  from './TrackList';
+import AddTracks from './AddTracks';
 
+interface TrackAction{
+  type:string;
+  payload:{track?:AudioTrack[],val?:any,id?:string};
 }
-export class TrackManager extends Component {
-  state: TrackManagerState;
-  declare props: TrackManagerProps;
-  constructor(props: TrackManagerProps) {
-    super(props);
-    this.state = {
-      tracklist: [],
-      url: "",
-      file: ""
-    };
-  }
-  playTrack  = (t : AudioTrack) => {
-    for (let track  of this.state.tracklist) {
-      if (track.name == t.name && t.CreateDate == track.CreateDate) {
-        track.play();
-      }
-    }
-
-  };
-  handleFile = async (f: File) => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const atag = new Audio();
-        atag.src = reader.result as string;
-        atag.addEventListener("loadeddata", () => {
-          resolve(new FileTrack(atag, f.name));
-        });
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(f);
-    });
-  };
-  getFile = async (f: FileList) => {
-    const ff = await Promise.all([...f].map(async f => {
-      return await this.handleFile(f);
-    }));
-    this.setState({
-      file: f[0],
-      tracklist: [...this.state.tracklist, ...ff]
-    });
-  };
-  createPlayerDummy(url: string) {
-    return new Promise((resolve, _) => {
-      const div = document.createElement("div");
-      document.body.appendChild(div);
-      div.id = "player-" + url + Date.now();
-      div.hidden = true;
-      const options = {
-        controls: 0,
-        modestbranding: true,
-        showinfo: 0,
-      };
-      const events = { "onReady": onPlayerReady };
-      //@ts-expect-error
-      new YT.Player(div.id, { videoId: url, playerVars: options, events });
-      document.getElementById(div.id)!.hidden = true;
-      function onPlayerReady(event: any) {
-        resolve(event.target);
-      }
-    }
-    );
-  }
-  handleYoutube = async (url: URL) => {
-    const player = await this.createPlayerDummy(url.searchParams.get("v") as string);
-    return new YouTubeTrack(player);
-  };
-  getValue = async (val: string) => {
-    try {
-      const url = new URL(val);
-      const yt = await this.handleYoutube(url);
-      this.setState({ url: val, tracklist: [...this.state.tracklist, yt] });
-    }
-    catch (e) {
-    }
-  };
-  changeVolume = (t: AudioTrack, val: number) => {
+function reducer (state: AudioTrack[], action:TrackAction) : any[]{
+  switch (action.type) {
+  case 'add':
+    return [...state,...action.payload.track as AudioTrack[]];
+  case 'delay':
+    return state.map((el: AudioTrack) => el.id === action.payload.id ? { ...el, delay: action.payload.val } : el); 
+  case 'playing':
+    return state.map((el: AudioTrack) => el.id === action.payload.id ? { ...el, playing: !el.playing } : el);
+  case 'volume':
     const newtracklist: AudioTrack[] = [];
-    for (let track of this.state.tracklist) {
-      if (track === t) {
-        const newtrack = t;
-        t.setVolume(val);
+    for (let track of state) {
+      if (track.id === action.payload.id) {
+        const newtrack = track;
+        newtrack.setVolume(action.payload.val);
         newtracklist.push(newtrack);
       }
       else{
         newtracklist.push(track);
       }
     }
-    this.setState((prevState:any) =>({tracklist:newtracklist}));
+    return newtracklist;
+  default:
+    return state;
+  }
+};
+function TrackManager(){
+  const [state,dispatch] = useReducer(reducer,[]);
+  const playTrack  = (t : string) => {
+    for (let track  of state) {
+      if (track.id === t) {
+        track.play();
+      }
+    }
+
   };
-  changeDelay = (t: AudioTrack, val: number) => {
-    this.setState((prevState: any) => ({
-      tracklist: prevState.tracklist.map(
-        (el: AudioTrack) => el === t ? { ...el, delay: val } : el
-      )
-    }))
-  };
-  changePlaying = (t: AudioTrack, val: boolean) => {
-    this.setState((prevState: any) => ({
-      tracklist: prevState.tracklist.map(
-        (el: AudioTrack) => el === t ? { ...el, playing: val } : el
-      )
-    }))
-  };
-  render() {
-    return (
+
+  return (
       <div>
         <div>
-          <ul>
-            {this.state.tracklist.map(e => <Track
-                                             key={`${e.name}_${e.CreateDate}`}
-                                             track={e}
-                                             changeVolume={this.changeVolume}
-                                             changeDelay={this.changeDelay}
-                                             changePlaying={this.changePlaying}
-                                             playTrack={this.playTrack}/>)}
-          </ul>
-        </div>
-        <URLInput getValue={this.getValue} />
-        <FileInput getFile={this.getFile} />
+    <TrackList dispatch={dispatch} tracks={state} playTrack={playTrack}/>
+    </div>
+    <AddTracks dispatch={dispatch}/>
       </div>
     );
-  }
 }
-
+/*export class TrackManager extends Component {
+  // changeVolume = (t: AudioTrack, val: number) => {
+  //   const newtracklist: AudioTrack[] = [];
+  //   for (let track of this.state.tracklist) {
+  //     if (track === t) {
+  //       const newtrack = t;
+  //       t.setVolume(val);
+  //       newtracklist.push(newtrack);
+  //     }
+  //     else{
+  //       newtracklist.push(track);
+  //     }
+  //   }
+  //   this.setState((prevState:any) =>({tracklist:newtracklist}));
+  // };
+  // changeDelay = (t: AudioTrack, val: number) => {
+  //   this.setState((prevState: any) => ({
+  //     tracklist: prevState.tracklist.map(
+  //       (el: AudioTrack) => el === t ? { ...el, delay: val } : el
+  //     )
+  //   }))
+  // };
+  // changePlaying = (t: AudioTrack, val: boolean) => {
+  //   this.setState((prevState: any) => ({
+  //     tracklist: prevState.tracklist.map(
+  //       (el: AudioTrack) => el === t ? { ...el, playing: val } : el
+  //     )
+  //   }))
+  // };
+}
+*/
 export default TrackManager;

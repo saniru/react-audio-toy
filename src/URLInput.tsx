@@ -3,7 +3,7 @@ interface URLInputState {
   input: string;
 }
 interface URLInputProps {
-  getValue: Function;
+  callback: Function;
 }
 export default class URLInput extends Component {
   state: URLInputState;
@@ -19,7 +19,7 @@ export default class URLInput extends Component {
       <div>
         <label htmlFor="audio-url">URL:</label>
         <input onChange={e => this.setState({ input: e.target.value })} id="audio-url" name="audio-url" type="text" value={this.state.input} />
-        <button onClick={() => this.props.getValue(this.state.input)}></button>
+        <button onClick={() => this.props.callback(this.state.input)}></button>
       </div>
     );
   }

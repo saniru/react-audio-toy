@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 interface FileInputProps {
-  getFile: Function;
+  callback: Function;
 }
-export class FileInput extends Component {
+export default class FileInput extends Component {
   fileInput: React.RefObject<HTMLInputElement>;
   declare props: FileInputProps;
   constructor(props: FileInputProps) {
@@ -13,7 +13,7 @@ export class FileInput extends Component {
   }
   handleSubmit = () => {
     if (this.fileInput.current) {
-      this.props.getFile(this.fileInput.current.files);
+      this.props.callback(this.fileInput.current.files);
     }
   };
   render() {
@@ -25,6 +25,4 @@ export class FileInput extends Component {
       </div>
     );
   }
-}
-
-export default FileInput;
+};
