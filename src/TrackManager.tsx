@@ -80,11 +80,18 @@ export class TrackManager extends Component {
     }
   };
   changeVolume = (t: AudioTrack, val: number) => {
-    this.setState((prevState: any) => ({
-      tracklist: prevState.tracklist.map(
-        (el: AudioTrack) => el === t ? { ...el, volume: val } : el
-      )
-    }))
+    const newtracklist: AudioTrack[] = [];
+    for (let track of this.state.tracklist) {
+      if (track === t) {
+        const newtrack = t;
+        t.setVolume(val);
+        newtracklist.push(newtrack);
+      }
+      else{
+        newtracklist.push(track);
+      }
+    }
+    this.setState((prevState:any) =>({tracklist:newtracklist}));
   };
   changeDelay = (t: AudioTrack, val: number) => {
     this.setState((prevState: any) => ({

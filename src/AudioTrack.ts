@@ -1,11 +1,12 @@
+let audioBase: AudioContext | null = null;
 abstract class AudioTrack{
   CreateDate:number;
   constructor() {
-    this.playing = false;
+    this.playing = true;
     this.CreateDate = Date.now();
   }
-  abstract set volume(val:number)
-  abstract get volume() : number
+  abstract setVolume:Function;
+  abstract getVolume:Function;
   abstract delay:number;
   abstract name:string;
   abstract TrackType:string;
@@ -20,30 +21,39 @@ class FileTrack extends AudioTrack {
   duration:number;
   name:string;
   TrackType:string;
+  AudioNode: MediaElementAudioSourceNode;
+  gainNode: GainNode;
   constructor(AudioTag:HTMLAudioElement,name:string) {
     super();
     this.name = name;
     this.TrackType = "File";
     this.AudioTag = AudioTag;
-    this.delay = 0;
+    this.delay = 10000;
     this.duration = AudioTag.duration;
+    if (!audioBase) {
+      audioBase = new AudioContext({latencyHint:"playback"});
+    }
+    this.AudioNode = audioBase.createMediaElementSource(AudioTag);
+    this.gainNode = audioBase.createGain();
+    this.AudioNode.connect(this.gainNode).connect(audioBase.destination);
+    this.gainNode.gain.setValueAtTime(0.5,audioBase.currentTime);
   }
-  set volume(val: number) {
-    this.AudioTag.volume = val;
+  getVolume = () => this.gainNode.gain;
+  setVolume = (val:number) =>{
+    if(!audioBase){return;}
+    this.gainNode.gain.setValueAtTime(val/100,audioBase.currentTime);
   }
-  get volume(): number {
-    return this.AudioTag.volume;
+  play =()=>{
+    this.AudioNode.mediaElement.play();
   }
-  play(){
-    this.AudioTag.play();
-  }
-  pause(){
+  pause=()=>{
     this.AudioTag.pause();
   }
   
 }
 class YouTubeTrack extends AudioTrack {
   playerNode: any;
+  volume:number;
   delay:number;
   duration:number;
   name:string;
@@ -53,20 +63,20 @@ class YouTubeTrack extends AudioTrack {
     this.playerNode = player;
     this.name = player.getVideoData().title;
     this.TrackType = "Youtube";
-    this.delay = 0;
+    this.delay = 1000;
     this.duration = this.playerNode.getDuration();
+    this.volume = 100;
+    this.playerNode.setVolume(this.volume);
   }
-  set volume(val: number) {
+  getVolume = () => this.playerNode.getVolume();
+  setVolume = (val:number) =>{
     this.playerNode.setVolume(val);
   }
-  get volume(): number {
-    return this.playerNode.getVolume();
-  }
-  play(): void {
+  play = () =>{
     this.playerNode.playVideo();
   }
-  pause(): void {
-    this.playerNode.playVideo();
+  pause = () => {
+    this.playerNode.pauseVideo();
   }
 }
 export{FileTrack,YouTubeTrack,AudioTrack}
