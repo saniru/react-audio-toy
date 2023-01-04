@@ -22,6 +22,14 @@ export class TrackManager extends Component {
       file: ""
     };
   }
+  playTrack  = (t : AudioTrack) => {
+    for (let track  of this.state.tracklist) {
+      if (track.name == t.name && t.CreateDate == track.CreateDate) {
+        track.play();
+      }
+    }
+
+  };
   handleFile = async (f: File) => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -46,7 +54,7 @@ export class TrackManager extends Component {
     });
   };
   createPlayerDummy(url: string) {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, _) => {
       const div = document.createElement("div");
       document.body.appendChild(div);
       div.id = "player-" + url + Date.now();

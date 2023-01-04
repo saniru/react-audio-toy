@@ -5,24 +5,43 @@ interface TrackProps{
   changeVolume:Function;
   changeDelay:Function;
   changePlaying:Function;
+  playTrack:Function;
 }
 interface TrackState{
   volume:number;
   delay:number;
   playing:boolean;
 }
+//https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random#getting_a_random_number_between_two_values
+function getRandomArbitrary(min : number, max : number) {
+    return Math.random() * (max - min) + min;
+}
+
 export class Track extends Component {
-  state:TrackState;
-  declare props: TrackProps
+  declare state: TrackState;
+  declare props: TrackProps;
+  TrackTimer:React.MutableRefObject<any>;
   constructor(props: TrackProps) {
     super(props);
-
+    this.TrackTimer = React.createRef();
     this.state = {
-      volume:0,
-      delay:0,
-      playing:false
+      volume:this.props.track.getVolume(),
+      delay:this.props.track.delay,
+      playing:this.props.track.playing
     };
   }
+  componentDidMount = () => {
+    const rand = getRandomArbitrary(this.props.track.delay/2, this.props.track.delay);
+    this.TrackTimer.current = setTimeout(this.randomPlay,rand);
+    return () => clearTimeout(this.TrackTimer.current);
+  };
+  randomPlay = () => {
+    if (this.props.track.playing) {
+      this.props.playTrack(this.props.track);
+    }
+    const rand = getRandomArbitrary(this.props.track.delay/2, this.props.track.delay);
+    this.TrackTimer.current = setTimeout(this.randomPlay,rand);
+  };
   handleVolume = (e: any) =>{
     this.setState({volume:e.target.value});
     this.props.changeVolume(this.props.track,this.state.volume);
@@ -31,7 +50,7 @@ export class Track extends Component {
     this.setState({delay:e.target.value});
     this.props.changeDelay(this.props.track,this.state.delay);
   };
-  handlePlaying = (e:any) =>{
+  handlePlaying = (_:any) =>{
     this.setState({playing:!this.state.playing});
     this.props.changePlaying(this.props.track,!this.state.playing);
   };
@@ -49,3 +68,4 @@ export class Track extends Component {
 }
 
 export default Track;
+
