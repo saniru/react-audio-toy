@@ -57,6 +57,7 @@ export class TrackManager extends Component {
         showinfo: 0,
       };
       const events = { "onReady": onPlayerReady };
+      //@ts-expect-error
       new YT.Player(div.id, { videoId: url, playerVars: options, events });
       document.getElementById(div.id)!.hidden = true;
       function onPlayerReady(event: any) {
@@ -72,7 +73,6 @@ export class TrackManager extends Component {
   getValue = async (val: string) => {
     try {
       const url = new URL(val);
-      const msg = url.host != "www.youtube.com" ? "INVALID" : "VALID";
       const yt = await this.handleYoutube(url);
       this.setState({ url: val, tracklist: [...this.state.tracklist, yt] });
     }
@@ -112,7 +112,13 @@ export class TrackManager extends Component {
       <div>
         <div>
           <ul>
-            {this.state.tracklist.map(e => <Track key={`${e.name}_${e.CreateDate}`} track={e} changeVolume={this.changeVolume} changeDelay={this.changeDelay} changePlaying={this.changePlaying} />)}
+            {this.state.tracklist.map(e => <Track
+                                             key={`${e.name}_${e.CreateDate}`}
+                                             track={e}
+                                             changeVolume={this.changeVolume}
+                                             changeDelay={this.changeDelay}
+                                             changePlaying={this.changePlaying}
+                                             playTrack={this.playTrack}/>)}
           </ul>
         </div>
         <URLInput getValue={this.getValue} />
