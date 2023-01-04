@@ -32,7 +32,9 @@ export class Track extends Component {
   componentDidMount = () => {
     const rand = getRandomArbitrary(this.props.delay/2, this.props.delay);
     this.TrackTimer.current = setTimeout(this.randomPlay,rand);
-    return () => clearTimeout(this.TrackTimer.current);
+  };
+  componentWillUnmount = () => {
+    clearTimeout(this.TrackTimer.current);
   };
   randomPlay = () => {
     if (this.props.playing) {
@@ -58,6 +60,7 @@ export class Track extends Component {
         <input onChange={(e) => this.handleDelay(e)} name="delay" type="range" min={30*1000} max={30*60*1000} step={1000} />
         <button onClick={() => this.props.dispatch({type:"playing",payload:{id:this.props.id}})}
                 name="playing">{this.props.playing ? "Pause" : "Play"}</button>
+        <button onClick={() => this.props.dispatch({type:"remove",payload:{id:this.props.id}})}>Remove</button>
       </div>
     );
   }

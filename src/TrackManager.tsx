@@ -11,6 +11,8 @@ function reducer (state: AudioTrack[], action:TrackAction) : any[]{
   switch (action.type) {
   case 'add':
     return [...state,...action.payload.track as AudioTrack[]];
+  case 'remove':
+    return state.filter((e) => e.id != action.payload.id);
   case 'delay':
     return state.map((el: AudioTrack) => el.id === action.payload.id ? { ...el, delay: action.payload.val } : el); 
   case 'playing':
