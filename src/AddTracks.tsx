@@ -22,23 +22,46 @@ const createPlayerDummy = (url: string) => {
   }
                     );
 };
-const handleYoutube = async (url: URL) => {
+const handleYoutube = async (url: URL, params? : TrackSerialization) => {
   const player = await createPlayerDummy(url.searchParams.get("v") as string);
-  return new YouTubeTrack(player);
+  const yt = new YouTubeTrack(player);
+  if (params) {
+    yt.CreateDate = params.createDate;
+    yt.delay = params.delay;
+    yt.setVolume(params.volume);
+    yt.playing = params.playing;
+    yt.id = yt.name + "_" + yt.CreateDate;
+  }
+  return yt;
 };
 const handleFile = async (f: File) => {
-    return new Promise((resolve, reject) => {
+  return new Promise((resolve,reject) =>{
       const reader = new FileReader();
       reader.onload = () => {
         const atag = new Audio();
         atag.src = reader.result as string;
         atag.addEventListener("loadeddata", () => {
-          resolve(new FileTrack(atag, f.name));
+          resolve (new FileTrack(atag, f.name));
         });
       };
-      reader.onerror = reject;
-      reader.readAsDataURL(f);
+  reader.onerror = reject;
+    reader.readAsDataURL(f);
+  });
+};
+const handleDataURL = async (e:TrackSerialization) => {
+  return new Promise ((resolve,_) =>{
+    const atag = new Audio();
+    atag.src = e.data.toString();
+    atag.addEventListener("loadeddata", () => {
+      const track = new FileTrack(atag,e.name);
+      track.CreateDate = e.createDate;
+      track.delay = e.delay;
+      track.setVolume(e.volume);
+      track.playing = e.playing;
+      track.id = track.name + "_" + track.CreateDate;
+      resolve(track);
     });
+  });
 };
 function AddTracks(props: {dispatch:Function}){
   const getFile = async (f: FileList) => {
@@ -56,6 +79,26 @@ function AddTracks(props: {dispatch:Function}){
     catch (e) {
     }
   };
+  useEffect(() => {
+    const loadAudios = async() =>{
+      const tracks = localStorage.getItem("tracklist");
+      if (!tracks) {return;}
+      const adds : TrackSerialization[] = JSON.parse(tracks);
+      const youtubes = await Promise.all(adds
+          .filter((e : TrackSerialization) => e.type == "Youtube")
+                                         .map(async e => {return await handleYoutube(new URL(e.data),e)}));
+    const files = await Promise.all(adds
+           .filter((e : TrackSerialization) => e.type == "File")
+           .map(async e => {
+             return await handleDataURL(e);
+           }
+               ));
+      props.dispatch({type:"add",payload:{track:files}});
+      props.dispatch({type:"add",payload:{track:youtubes}});
+    };
+    loadAudios();
+
+  },[]);
   return (<><URLInput callback={getValue} /><FileInput callback={getFile} /></>);
 }
 

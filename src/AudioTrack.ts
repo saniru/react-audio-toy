@@ -1,4 +1,13 @@
 let audioBase: AudioContext | null = null;
+interface TrackSerialization{
+  type:string;
+  data:string;
+  name:string;
+  createDate:number;
+  delay:number;
+  volume:number;
+  playing:boolean;
+}
 abstract class AudioTrack{
   CreateDate:number;
   constructor() {
@@ -89,4 +98,5 @@ class YouTubeTrack extends AudioTrack {
     this.playerNode.pauseVideo();
   }
 }
+export type {TrackSerialization}
 export{FileTrack,YouTubeTrack,AudioTrack}
