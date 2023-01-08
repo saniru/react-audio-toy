@@ -1,8 +1,12 @@
-import { AudioTrack, FileTrack, YouTubeTrack } from "./AudioTrack";
+import { useEffect } from "react";
+import { AudioTrack, FileTrack, TrackSerialization, YouTubeTrack } from "./AudioTrack";
 import  FileInput  from "./FileInput";
 import  URLInput  from "./URLInput";
-const createPlayerDummy = (url: string) => {
-  return new Promise((resolve, _) => {
+const createPlayerDummy = async (url: string) => {
+  while(!window.hasOwnProperty("YT")){
+      await new Promise(resolve => setTimeout(resolve,1000));
+    }
+  return new Promise((resolve,_)=>{
     const div = document.createElement("div");
     document.body.appendChild(div);
     div.id = "player-" + url + Date.now();
@@ -19,8 +23,7 @@ const createPlayerDummy = (url: string) => {
     function onPlayerReady(event: any) {
       resolve(event.target);
     }
-  }
-                    );
+  });
 };
 const handleYoutube = async (url: URL, params? : TrackSerialization) => {
   const player = await createPlayerDummy(url.searchParams.get("v") as string);
