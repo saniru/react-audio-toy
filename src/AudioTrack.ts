@@ -50,7 +50,7 @@ class FileTrack extends AudioTrack {
     this.gainNode.gain.setValueAtTime(0.5,audioBase.currentTime);
     this.id = this.name + "_" + this.CreateDate;
   }
-  getVolume = () => this.gainNode.gain;
+  getVolume = () => this.gainNode.gain.value;
   setVolume = (val:number) =>{
     if(!audioBase){return;}
     try{
@@ -66,10 +66,9 @@ class FileTrack extends AudioTrack {
   pause=()=>{
     this.AudioTag.pause();
   }
-  
 }
 class YouTubeTrack extends AudioTrack {
-  playerNode: any;
+  playerNode: YT.Player;
   volume:number;
   delay:number;
   duration:number;

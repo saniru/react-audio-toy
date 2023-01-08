@@ -72,7 +72,8 @@ export class Track extends Component {
                   mode: (state.mode + 1) % (Object.keys(TrackMode).length / 2)
         }))}>Switch Mode</button>
         <input onChange={(e) => this.handleVolume(e)} name="volume" type="range" min="1" max="100"/>
-        <input onChange={(e) => this.handleDelay(e)} name="delay" type="range" min={30*1000} max={30*60*1000} step={1000} />
+      <input onChange={(e) => this.handleDelay(e)} name="delay" type="range" min={30*1000} max={30*60*1000} step={1000} value={this.state.delay}/>
+        {buttons[this.state.mode]}
         <button onClick={() => this.props.dispatch({type:"remove",payload:{id:this.props.id}})}>Remove</button>
       </div>
     );
