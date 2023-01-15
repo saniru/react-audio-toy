@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
+import { TrackAction } from './TrackManager';
 interface TrackProps {
-  id: String;
-  dispatch: Function;
-  playTrack: Function;
+  id: string;
+  dispatch: React.Dispatch<TrackAction>;
+  playTrack: (a:string) => void;
   playing: boolean;
   delay: number;
   name: string;

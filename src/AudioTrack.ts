@@ -1,6 +1,7 @@
 let audioBase: AudioContext | null = null;
+type TrackTypes = "File"|"Youtube"
 interface TrackSerialization {
-  type: string;
+  type: TrackTypes;
   data: string;
   name: string;
   createDate: number;
@@ -18,7 +19,7 @@ abstract class AudioTrack {
   abstract getVolume: Function;
   abstract delay: number;
   abstract name: string;
-  abstract TrackType: string;
+  abstract TrackType: TrackTypes;
   playing: boolean;
   abstract duration: number;
   abstract play(): void;
@@ -30,7 +31,7 @@ class FileTrack extends AudioTrack {
   delay: number;
   duration: number;
   name: string;
-  TrackType: string;
+  TrackType: TrackTypes;
   id: string;
   AudioNode: MediaElementAudioSourceNode;
   gainNode: GainNode;
@@ -74,7 +75,7 @@ class YouTubeTrack extends AudioTrack {
   duration: number;
   name: string;
   id: string;
-  TrackType: string;
+  TrackType: TrackTypes;
   constructor(player: any) {
     super();
     this.playerNode = player;

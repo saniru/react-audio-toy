@@ -1,7 +1,8 @@
 import { AudioTrack } from "./AudioTrack";
 import { Track } from "./Track";
+import { TrackAction } from "./TrackManager";
 
-function TrackList(props: { dispatch: Function, tracks: AudioTrack[], playTrack: Function }) {
+function TrackList(props: { dispatch: React.Dispatch<TrackAction>, tracks: AudioTrack[], playTrack: (id:string) => void }) {
   return (<>
     <ul>
       {props.tracks.map(e => <Track

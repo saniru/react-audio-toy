@@ -41,7 +41,7 @@ function reducer(state: AudioTrack[], action: TrackAction): any[] {
       return state;
   }
 };
-function serializeTrack(e: AudioTrack): TrackSerialization {
+function serializeTrack(e: AudioTrack & {AudioTag:any,playerNode:any}): TrackSerialization {
   return {
     type: e.TrackType,
     data: e.AudioTag?.src ?? e.playerNode.getVideoUrl(),
@@ -75,3 +75,4 @@ function TrackManager() {
   );
 }
 export default TrackManager;
+export type { TrackAction };
