@@ -19,9 +19,9 @@ export default class FileInput extends Component {
   render() {
     return (
       <div>
-        <label htmlFor="audio">Input audio file:</label>
-        <input ref={this.fileInput} id="audiofile" name="audio" multiple type="file" />
-        <button onClick={this.handleSubmit}></button>
+        <label htmlFor="audio-file">Input audio file:</label>
+        <input ref={this.fileInput} id="audio-file" name="audio" multiple type="file" />
+        <button onClick={this.handleSubmit}>Add File Tracks</button>
       </div>
     );
   }

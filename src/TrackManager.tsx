@@ -69,9 +69,7 @@ function TrackManager() {
 
   return (
     <div>
-      <div>
-        <TrackList dispatch={dispatch} tracks={state} playTrack={playTrack} />
-      </div>
+      <TrackList dispatch={dispatch} tracks={state} playTrack={playTrack} />
       <AddTracks dispatch={dispatch} />
     </div>
   );

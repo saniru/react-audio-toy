@@ -57,6 +57,11 @@ export class Track extends Component {
     this.setState({ delay: e.target.value });
     this.props.dispatch({ type: "delay", payload: { id: this.props.id, val: this.state.delay } });
   };
+  changeMode = () =>{
+    this.setState((state: TrackState, _) => ({
+          mode: (state.mode + 1) % (Object.keys(TrackMode).length / 2)
+    }));
+  };
   render() {
     const buttons = {
       [TrackMode.Random]: <button onClick={() => this.props.dispatch({ type: "playing", payload: { id: this.props.id } })}
@@ -72,16 +77,28 @@ export class Track extends Component {
         <pre>{this.props.name}</pre>
         <pre>{this.props.TrackType}</pre>
         <pre>{titles[this.state.mode]}</pre>
-        <button onClick={() => this.setState((state: TrackState, _) => ({
-          mode: (state.mode + 1) % (Object.keys(TrackMode).length / 2)
-        }))}>Switch Mode</button>
-        <input onChange={(e) => this.handleVolume(e)} name="volume" type="range" min="1" max="100" />
-        <input onChange={(e) => this.handleDelay(e)} name="delay" type="range" min={30 * 1000} max={30 * 60 * 1000} step={1000} value={this.state.delay} />
-        {buttons[this.state.mode]}
+        <button onClick={this.changeMode}>Switch Mode</button>
+        <label htmlFor={this.props.id+"_volume"}>Volume</label>
+        <input id={this.props.id+"_volume"}
+               onChange={(e) => this.handleVolume(e)}
+               name="volume"
+               type="range"
+               min="1"
+               max="100" />
+        <label htmlFor={this.props.id+"_delay"}>Delay</label>
+        <input id={this.props.id+"_delay"}
+               onChange={(e) => this.handleDelay(e)}
+               name="delay"
+               type="range"
+               min={30 * 1000}
+               max={30 * 60 * 1000}
+               step={1000}
+               value={this.state.delay} />
+         {buttons[this.state.mode]}
         <button onClick={() => this.props.dispatch({ type: "remove", payload: { id: this.props.id } })}>Remove</button>
       </div>
     );
-  }
+  };
 };
 
 export default Track;
